@@ -1,0 +1,31 @@
+{
+  "name": "genlayer-oracle-lib",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Thư viện Intelligent Contract gọi API thời tiết, giá cả và mạng xã hội trên GenLayer.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lobinni/genlayer-oracle-lib.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lobinni/genlayer-oracle-lib/issues"
+  },
+  "homepage": "https://github.com/lobinni/genlayer-oracle-lib#readme",
+  "dependencies": {
+    "genlayer-js": "^1.1.8"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

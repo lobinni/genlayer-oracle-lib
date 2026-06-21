@@ -1,0 +1,17 @@
+# Node
+node_modules/
+package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets — KHÔNG BAO GIỜ commit các file này
+.env
+.env.*
+*.key
+secrets.json
+
+# OS
+.DS_Store

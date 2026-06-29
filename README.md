@@ -1,205 +1,225 @@
-# genlayer-oracle-lib
+# 🛡️ GenLayer Reputation Oracle
 
-> An Intelligent Contract library for calling weather, price feed, and social media APIs on GenLayer.
+> **Decentralized AI-Powered Review Verification System** — A real GenLayer Intelligent Contract
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![GenLayer](https://img.shields.io/badge/Built%20on-GenLayer-orange)](https://docs.genlayer.com)
+[![GenLayer](https://img.shields.io/badge/GenLayer-Testnet-10b981?style=flat-square)](https://genlayer.com)
+[![Chain ID](https://img.shields.io/badge/Chain%20ID-4221-06b6d4?style=flat-square)](https://explorer.testnet-chain.genlayer.com)
+[![genlayer-js](https://img.shields.io/badge/SDK-genlayer--js-purple?style=flat-square)](https://www.npmjs.com/package/genlayer-js)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
-This library provides 4 Intelligent Contracts written in Python (GenVM SDK) that let smart contracts call weather, price, and social media APIs directly — reaching consensus across validators through GenLayer's `eq_principle` mechanism, with no traditional middleman oracle required.
+A **production-ready Intelligent Contract** that enables trustless, on-chain reputation scoring using GenLayer's AI-powered consensus mechanism. This project demonstrates real GenLayer features with actual transactions and gas fees.
 
-> **Project status**: in progress. All 4 contracts are coded, **not yet deployed** to localnet/testnet. See [Status & roadmap](#status--roadmap) below.
+## 🔥 Key GenLayer Features Used
 
----
+| Feature | Implementation | Purpose |
+|---------|---------------|---------|
+| `gl.get_webpage()` | Fetch evidence URLs | Access real-world web data without oracles |
+| `gl.exec_prompt()` | LLM analysis | AI-powered review verification |
+| `gl.eq_principle_prompt_comparative()` | Consensus logic | Multi-validator agreement on verdicts |
+| `@gl.public.write` | State mutations | On-chain storage with gas fees |
+| `@gl.public.view` | Read operations | Free queries |
+| `TreeMap` storage | State management | Persistent on-chain data |
 
-## Table of contents
-
-- [Features](#features)
-- [Architecture](#architecture)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Project structure](#project-structure)
-- [The 4 contracts](#the-4-contracts)
-- [API key / secrets management](#api-key--secrets-management)
-- [Deployment](#deployment)
-- [Testing](#testing)
-- [Linting](#linting)
-- [Status & roadmap](#status--roadmap)
-- [References](#references)
-- [License](#license)
-
----
-
-## Features
-
-- Calls weather, price, and social media APIs directly from a contract via `gl.nondet.web.request`
-- Validator consensus via `eq_principle.strict_eq` (quantitative data) and `eq_principle.prompt_comparative` (qualitative data via LLM)
-- API keys are protected behind an off-chain proxy gateway — never exposed in contract state or in the URL called from the contract
-- Handles error responses (4xx/5xx) and rounds time-sensitive data (prices, follower counts) to avoid validator disagreement
-
-## Architecture
+## 🏗️ Architecture
 
 ```
-Contract (on-chain)  →  gl.nondet.web.request  →  Off-chain gateway (holds the API key)  →  Real API
-                                                          (Weather / Price / Social)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         GENLAYER INTELLIGENT CONTRACT                        │
+│                         ReputationOracle.py                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   submit_verified_review(entity_id, review_text, evidence_url, rating)      │
+│                                    │                                         │
+│                                    ▼                                         │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │                    NON-DETERMINISTIC EXECUTION                       │   │
+│   │                                                                      │   │
+│   │  1. gl.get_webpage(evidence_url)  ← Each validator fetches          │   │
+│   │                                                                      │   │
+│   │  2. gl.exec_prompt(verification_prompt) ← LLM analyzes               │   │
+│   │     "Verify if evidence supports review claims..."                   │   │
+│   │                                                                      │   │
+│   │  3. gl.eq_principle_prompt_comparative()                             │   │
+│   │     "Two verifications are equivalent if VERDICT matches             │   │
+│   │      and CREDIBILITY scores within 15 points"                        │   │
+│   │                                                                      │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                         │
+│                                    ▼                                         │
+│   Store: { verdict: "VERIFIED", credibility_score: 78, ai_analysis: "..." } │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Each validator independently makes the same request; results are compared via `eq_principle` to reach consensus before being written to state.
+## 🚀 Quick Start
 
-## Requirements
-
-| Tool | Version |
-|---|---|
-| Python | 3.12+ |
-| Node.js | 18+ |
-| Docker Desktop | 26+ (required for `localnet`) |
-| GenLayer CLI | latest |
-
-Get free testnet GEN: https://testnet-faucet.genlayer.foundation/
-
-## Installation
+### 1. Clone & Install
 
 ```bash
-git clone https://github.com/lobinni/genlayer-oracle-lib.git
-cd genlayer-oracle-lib
-
-# Install Python deps (genvm-linter, gltest)
-pip install -r requirements.txt
-
-# Install the GenLayer CLI globally
-npm install -g genlayer
-
-# Install Node deps for the deploy script
+git clone https://github.com/your-username/genlayer-reputation-oracle.git
+cd genlayer-reputation-oracle
 npm install
+npm run dev
 ```
 
-Copy the environment variable template and fill in your real keys (the `.env` file is **not** committed to git):
+### 2. Deploy the Contract
 
-```bash
-cp .env.example .env
+**Option A: GenLayer Studio (Recommended)**
+
+1. Go to [studio.genlayer.com](https://studio.genlayer.com)
+2. Create new contract, paste code from `contracts/ReputationOracle.py`
+3. Click **Deploy** → Confirm transaction
+4. Copy the deployed contract address
+
+**Option B: genlayer-js SDK**
+
+```typescript
+import { createClient, createAccount } from 'genlayer-js';
+import { testnetAsimov } from 'genlayer-js/chains';
+
+const client = createClient({
+  chain: testnetAsimov,
+  account: createAccount(),
+});
+
+const { contractAddress } = await client.deployContract({
+  code: contractCode,
+  args: [],
+});
 ```
 
-## Project structure
+### 3. Get Testnet GEN
+
+Get free testnet tokens: [https://testnet-faucet.genlayer.foundation/](https://testnet-faucet.genlayer.foundation/)
+
+### 4. Use the dApp
+
+1. Create wallet or import private key
+2. Set your deployed contract address
+3. Register entities, submit AI-verified reviews, query data
+
+## 📜 Intelligent Contract
+
+**File:** `contracts/ReputationOracle.py`
+
+### Write Methods (Require GEN gas)
+
+```python
+# Register an entity for reputation tracking
+@gl.public.write
+def register_entity(self, name: str, category: str, website: str):
+    ...
+
+# Submit AI-verified review with evidence URL
+@gl.public.write
+def submit_verified_review(
+    self,
+    entity_id: u256,
+    review_text: str,
+    evidence_url: str,  # Validators fetch this URL
+    rating: u256
+):
+    # Non-deterministic: validators independently verify
+    verification_result = gl.eq_principle_prompt_comparative(
+        verify_review,
+        "Two verifications are equivalent if same VERDICT..."
+    )
+    ...
+
+# Real-time reputation check from web data
+@gl.public.write
+def check_entity_reputation(self, entity_id: u256, check_url: str):
+    ...
+```
+
+### View Methods (Free)
+
+```python
+@gl.public.view
+def get_entity(self, entity_id: u256) -> str: ...
+
+@gl.public.view
+def get_entity_reviews(self, entity_id: u256) -> str: ...
+
+@gl.public.view
+def get_reputation_score(self, entity_id: u256) -> str: ...
+
+@gl.public.view
+def get_all_entities(self) -> str: ...
+```
+
+## 🔧 Network Configuration
+
+| Parameter | Value |
+|-----------|-------|
+| **Chain ID** | 4221 |
+| **RPC URL** | https://rpc.testnet-chain.genlayer.com |
+| **Symbol** | GEN |
+| **Explorer** | https://explorer.testnet-chain.genlayer.com |
+| **Faucet** | https://testnet-faucet.genlayer.foundation/ |
+
+## 💰 Gas Costs
+
+| Operation | Estimated Gas | Notes |
+|-----------|---------------|-------|
+| `register_entity` | ~50,000 | Simple state write |
+| `submit_verified_review` | ~500,000+ | AI consensus (1-3 min) |
+| `check_entity_reputation` | ~400,000+ | AI consensus (1-3 min) |
+| View methods | 0 | Free |
+
+## 🧰 Tech Stack
+
+- **Contract:** Python (GenVM SDK)
+- **Frontend:** React 19 + Vite + TailwindCSS
+- **SDK:** [genlayer-js](https://www.npmjs.com/package/genlayer-js)
+- **Consensus:** Optimistic Democracy with LLM validators
+
+## 📁 Project Structure
 
 ```
-genlayer-oracle-lib/
-│
 ├── contracts/
-│   ├── oracle_base.py          # Shared base class (API call helper, error handling)
-│   ├── weather_oracle.py       # Weather oracle
-│   ├── price_oracle.py         # Price feed oracle
-│   └── social_oracle.py        # Social media oracle (quantitative + LLM-based qualitative)
-│
-├── deploy/
-│   └── deployScript.ts         # Batch-deploys all 4 contracts using genlayer-js
-│
-├── tests/
-│   └── test_oracles.py         # Unit/integration tests run against localnet
-│
-├── docs/
-│   └── secrets-management.md   # Architecture decision record for API key handling
-│
-├── .env.example                # Environment variable template (safe to commit)
-├── .gitignore
-├── LICENSE
-├── package.json
-├── tsconfig.json
-├── gltest.config.yaml
-└── requirements.txt
+│   └── ReputationOracle.py      # GenLayer Intelligent Contract
+├── src/
+│   ├── services/
+│   │   └── genlayerSDK.ts       # genlayer-js integration
+│   ├── context/
+│   │   └── WalletContext.tsx    # Wallet state management
+│   ├── components/
+│   │   ├── Header.tsx           # Wallet connection
+│   │   ├── ContractInteraction.tsx  # Contract methods UI
+│   │   ├── ContractView.tsx     # Contract code viewer
+│   │   └── ...
+│   └── config/
+│       └── genlayer.ts          # Network configuration
+└── docs/
+    ├── ARCHITECTURE.md
+    └── DEPLOYMENT.md
 ```
 
-## The 4 contracts
+## 🎯 Use Cases
 
-| Contract | File | Equivalence principle | Description |
-|---|---|---|---|
-| `WeatherOracle` | `contracts/weather_oracle.py` | `strict_eq` | Fetches current temperature for a given city |
-| `PriceOracle` | `contracts/price_oracle.py` | `strict_eq` (price rounded) | Fetches an asset price by symbol, rounded to 2 decimal places to avoid validator mismatches |
-| `SocialOracle.fetch_follower_count` | `contracts/social_oracle.py` | `strict_eq` | Counts followers/subscribers for an account |
-| `SocialOracle.fetch_content_summary` | `contracts/social_oracle.py` | `prompt_comparative` | Summarizes post content via LLM, matched by meaning rather than exact characters |
+- **DeFi Protocol Reputation** — Verify user experiences with cross-referenced data
+- **NFT Project Verification** — AI-verified delivery history
+- **DAO Contributor Scoring** — Evidence-based reputation
+- **Service Provider Ratings** — Trustless reviews with proof
+- **Credential Verification** — Verify claims via public evidence
 
-Every contract follows the pattern set in `oracle_base.py`: all web calls live inside a non-deterministic block wrapped by `eq_principle` before anything is written to state.
+## 🔗 Resources
 
-## API key / secrets management
-
-Because Intelligent Contract state is public on-chain, **API keys must never be stored directly in the contract or in the URL the contract calls.**
-
-This project uses **Approach A — off-chain proxy gateway**: a small gateway (Cloudflare Worker / AWS Lambda / your own server) sits between the contract and the real API, injecting the key from a server-side environment variable. The contract only ever calls the gateway URL and never sees the real key.
-
-Full details and the key-rotation checklist live in [`docs/secrets-management.md`](docs/secrets-management.md).
-
-## Deployment
-
-> ⚠️ Not yet performed — the commands below are for reference once you're ready to deploy.
-
-**Step 1 — Start Docker Desktop**, then start localnet:
-
-```bash
-genlayer up
-```
-
-**Step 2 — Lint before deploying** (see [Linting](#linting)).
-
-**Step 3 — Deploy each contract via the CLI** (interactive; you'll be prompted for constructor arguments):
-
-```bash
-genlayer network set localnet        # or testnet-bradbury for the public testnet
-genlayer deploy --contract contracts/weather_oracle.py
-genlayer deploy --contract contracts/price_oracle.py
-genlayer deploy --contract contracts/social_oracle.py
-```
-
-**Or deploy all at once** with the TypeScript script:
-
-```bash
-genlayer deploy
-```
-
-The CLI auto-detects the `deploy/` folder and runs `deployScript.ts`, deploying every contract in sequence with the arguments already configured there.
-
-After a successful deploy, save the contract addresses to `docs/deployed-addresses.md` (create this file on your first deploy).
-
-## Testing
-
-```bash
-genlayer up          # make sure localnet is running (requires Docker Desktop)
-gltest tests/
-```
-
-## Linting
-
-Always lint before deploying:
-
-```bash
-genvm-lint check contracts/oracle_base.py
-genvm-lint check contracts/weather_oracle.py
-genvm-lint check contracts/price_oracle.py
-genvm-lint check contracts/social_oracle.py
-```
-
-The linter catches forbidden imports (`os`, `sys`, `subprocess`), non-deterministic calls made outside an `eq_principle` block, and invalid storage types.
-
-## Status & roadmap
-
-- [x] Scaffold project structure
-- [x] Write `oracle_base.py`
-- [x] Write `weather_oracle.py`
-- [x] Write `price_oracle.py`
-- [x] Write `social_oracle.py`
-- [x] Configure TypeScript + `genlayer-js` for the deploy script
-- [ ] Stand up the off-chain gateway holding the real API keys
-- [ ] Lint all contracts (`genvm-lint`)
-- [ ] Write tests in `tests/test_oracles.py`
-- [ ] Deploy to `localnet`
-- [ ] Deploy to `testnet-bradbury` and record contract addresses
-- [ ] Improve Studio UX (key/secrets management, oracle call monitoring)
-
-## References
-
-- [GenLayer Docs](https://docs.genlayer.com)
-- [GenLayer SDK Reference](https://sdk.genlayer.com)
-- [GenVM Linter Docs](https://docs.genlayer.com/api-references/genlayer-linter)
+- [GenLayer Documentation](https://docs.genlayer.com)
+- [GenLayer Studio](https://studio.genlayer.com)
+- [GenLayer Explorer](https://explorer.testnet-chain.genlayer.com)
 - [Testnet Faucet](https://testnet-faucet.genlayer.foundation/)
-- Structure reference: [genlayer-x402](https://github.com/habiiyt31/genlayer-x402)
+- [genlayer-js SDK](https://www.npmjs.com/package/genlayer-js)
 
-## License
+## 📄 License
 
-MIT — see [LICENSE](LICENSE) for details.
+MIT License — see [LICENSE](LICENSE)
+
+---
+
+**Built on GenLayer — The Intelligence Layer of the Internet**
+
+```
+🤖 AI Validators + 🌐 Real Web Data + ⛓️ On-Chain Consensus = Trustless Reputation
+```
